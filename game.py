@@ -19,14 +19,18 @@ class Game():
         self.MAX_FPS = 60
         self.dt = 0
         self.last_time = time.time()
+        self.scroll = [0, 0]
+        self.camera_smoothing = 15
         
-        self.player = Player(100, 100, 40, 40)
+        self.player = Player(100, 100, 50, 50)
+        self.player.load_images()
         self.clock = pygame.time.Clock()
         
     def calculate_dt(self):
         """Calculates the deltatime between each frame"""
         self.dt = time.time() - self.last_time
         self.dt *= 60
+        self.camara_smoothing = 15 - int(self.dt)
         
     def events(self):
         """"checks if window was quit using the x button"""
@@ -53,9 +57,14 @@ class Game():
             # ------------------------------------------------ collision events
             self.collision()
             
+            # ------------------------------------------------ moving the camera
+            self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
+            self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
+            
             # ------------------------------------------------ drawing
             self.window.fill((0, 0, 0))
             self.player.update(self.window, self.dt)
+            self.window.blit(self.player.image, ((self.player.rect.x - (self.player.width / 2))- self.scroll[0], (self.player.rect.y - (self.player.height / 2)) - self.scroll[1]))
             self.display.blit(self.window, (0, 0))
             
             # ------------------------------------------------ update

@@ -1,11 +1,10 @@
 import pygame, os, time
+from scripts.sprite import Sprite
 
 class Player():
     def __init__(self, x, y, width, height):
         self.x, self.y = x, y
         self.width, self.height = width, height
-        self.image = pygame.transform.scale(pygame.image.load(os.path.join('assets/images/player/idle/', 'player-idle.png')), (self.width, self.height))
-        self.rect = self.image.get_rect()
         
         self.is_jumping, self.on_ground = False, False
         self.speed = 2
@@ -71,4 +70,15 @@ class Player():
         
     def update(self, window, dt):
         self.move(dt)
-        self.draw(window)
+    
+    def animations(self):
+        pass
+        
+    def load_images(self):
+        sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (32, 32), (self.width, self.height))
+        self.idle = sprite.cut(0, 0)
+        self.idle_blink = sprite.cut(0, 1)
+        
+        
+        self.image = self.idle
+        self.rect = self.image.get_rect()
