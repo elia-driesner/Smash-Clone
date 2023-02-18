@@ -11,12 +11,13 @@ class Player():
         self.speed = 2
         self.double_jump = True
         self.last_jump = time.time()
-        self.gravity, self.friction = .32, -.13
+        self.gravity, self.friction = .32, -.15
         self.position, self.velocity = pygame.math.Vector2(0, 0), pygame.math.Vector2(0, 0)
         self.acceleration = pygame.math.Vector2(0, self.gravity)
 
         
     def move(self, dt):
+        """player movement and jumping and falling physics"""
         self.acceleration.x = 0
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
@@ -44,6 +45,7 @@ class Player():
         self.rect.y = self.y
     
     def jump(self):
+        """checks if player is able to jump and sets the velocity"""
         if self.on_ground:
             self.last_jump = time.time()
             self.double_jump = True
@@ -60,6 +62,7 @@ class Player():
         
     
     def limit_velocity(self, max_vel):
+        """limits the velocity of the player"""
         min(-max_vel, max(self.velocity.x, max_vel))
         if abs(self.velocity.x) < .01: self.velocity.x = 0
 
