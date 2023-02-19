@@ -19,6 +19,8 @@ class Player():
         self.animation_duration = 7
         self.flight_duration = 0
         self.direction = 'right'
+        self.idle_time = 0
+        self.last_image = 0
 
         
     def move(self, dt):
@@ -92,13 +94,10 @@ class Player():
             if self.flight_duration <= 10:
                 self.image = self.jump1
             elif self.flight_duration <= 30:
-                print('jump')
                 self.image = self.jump2
             elif self.flight_duration <= 1000:
                 self.image = self.jump3
             self.flight_duration += 1
-            if self.direction == 'left':
-                self.image = pygame.transform.flip(self.image, True, False)
         elif self.is_falling:
             if self.flight_duration <= 10:
                 self.image = self.fall1
@@ -107,8 +106,6 @@ class Player():
             elif self.flight_duration <= 1000:
                 self.image = self.fall3
             self.flight_duration += 1
-            if self.direction == 'left':
-                self.image = pygame.transform.flip(self.image, True, False)
         elif self.keys[pygame.K_a] or self.keys[pygame.K_d]:
             if self.steps <= self.animation_duration:
                 self.image = self.run1
@@ -127,15 +124,22 @@ class Player():
             elif self.steps >= self.animation_duration * 7 + 1:
                 self.steps = 0
             self.steps += 1
-            if self.direction == 'left':
-                self.image = pygame.transform.flip(self.image, True, False)
         else:
-            self.image = self.idle
-            if self.direction == 'left':
-                self.image = pygame.transform.flip(self.image, True, False)
+            if self.idle_time >= self.animation_duration * 7 + 1:
+                self.idle_time = 0
+            if self.idle_time <= self.animation_duration * 5:
+                self.image = self.idle
+            elif self.idle_time < self.animation_duration * 7:
+                self.image = self.idle_low
+
+            self.idle_time += 1    
                             
         if self.is_jumping == False and self.is_falling == False:
-            self.flight_duration = 0      
+            self.flight_duration = 0     
+        if self.direction == 'left' and self.image != self.last_image:
+            self.image = pygame.transform.flip(self.image, True, False) 
+        self.last_image = self.image
+        self.image.set_colorkey((255, 255, 255))
             
         
     def load_images(self):
@@ -163,4 +167,5 @@ class Player():
         
         
         self.image = self.idle
+        self.last_image = self.idle
         self.rect = self.image.get_rect()
