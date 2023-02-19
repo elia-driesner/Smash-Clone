@@ -1,4 +1,4 @@
-import pygame, os, time
+import pygame, os, time, random
 from scripts.sprite import Sprite
 
 class Player():
@@ -6,38 +6,50 @@ class Player():
         self.x, self.y = x, y
         self.width, self.height = width, height
         
-        self.is_jumping, self.on_ground = False, False
+        self.is_jumping, self.on_ground, self.is_falling = False, False, False
         self.speed = 2
         self.double_jump = True
         self.last_jump = time.time()
-        self.gravity, self.friction = .32, -.15
+        self.gravity, self.friction = .6, -.15
         self.position, self.velocity = pygame.math.Vector2(0, 0), pygame.math.Vector2(0, 0)
         self.acceleration = pygame.math.Vector2(0, self.gravity)
+        
+        # animation
+        self.steps = 0
+        self.animation_duration = 7
+        self.flight_duration = 0
+        self.direction = 'right'
 
         
     def move(self, dt):
         """player movement and jumping and falling physics"""
         self.acceleration.x = 0
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
+        if self.keys[pygame.K_a]:
+            self.direction = 'left'
             self.acceleration.x -= self.speed
-        elif keys[pygame.K_d]:
+        elif self.keys[pygame.K_d]:
+            self.direction = 'right'
             self.acceleration.x += self.speed
-        if keys[pygame.K_SPACE]:
+        if self.keys[pygame.K_SPACE]:
             self.jump()
             
         self.acceleration.x += self.velocity.x * self.friction
         self.velocity.x += self.acceleration.x * dt
-        self.limit_velocity(4)
+        self.limit_velocity(7)
         self.position.x += self.velocity.x * dt + (self.acceleration.x * .5) * (dt * dt)
         self.x = self.position.x
         
         self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7: self.velocity.y = 7
         if self.on_ground: 
+            self.is_falling = False
+            self.is_jumping = False
             self.velocity.y = 0
         else:
             self.position.y += self.velocity.y * dt + (self.acceleration.y * .5) * (dt * dt)
+        if self.y - self.position.y < 0:
+            self.is_falling = True
+            self.is_jumping = False
         self.y = self.position.y
                 
         self.rect.x = self.x
@@ -49,15 +61,17 @@ class Player():
             self.last_jump = time.time()
             self.double_jump = True
             self.is_jumping = True
-            self.velocity.y -= 12
+            self.is_falling = False
+            self.velocity.y -= 13
             self.on_ground = False
         elif self.double_jump and self.on_ground == False and time.time() - self.last_jump > 0.3:
             self.double_jump = False
             self.is_jumping = True
-            self.velocity.y -= 12
+            self.is_falling = False
+            self.velocity.y -= 13
             self.on_ground = False
-        if self.velocity.y <= -12.5:
-            self.velocity.y = -12
+        if self.velocity.y <= -13.5:
+            self.velocity.y = -13
         
     
     def limit_velocity(self, max_vel):
@@ -69,15 +83,83 @@ class Player():
         window.blit(self.image, (self.rect.x, self.rect.y))
         
     def update(self, window, dt):
+        self.keys = pygame.key.get_pressed()
         self.move(dt)
+        self.animations()
     
     def animations(self):
-        pass
+        if self.is_jumping:
+            if self.flight_duration <= 10:
+                self.image = self.jump1
+            elif self.flight_duration <= 30:
+                print('jump')
+                self.image = self.jump2
+            elif self.flight_duration <= 1000:
+                self.image = self.jump3
+            self.flight_duration += 1
+            if self.direction == 'left':
+                self.image = pygame.transform.flip(self.image, True, False)
+        elif self.is_falling:
+            if self.flight_duration <= 10:
+                self.image = self.fall1
+            elif self.flight_duration <= 30:
+                self.image = self.fall2
+            elif self.flight_duration <= 1000:
+                self.image = self.fall3
+            self.flight_duration += 1
+            if self.direction == 'left':
+                self.image = pygame.transform.flip(self.image, True, False)
+        elif self.keys[pygame.K_a] or self.keys[pygame.K_d]:
+            if self.steps <= self.animation_duration:
+                self.image = self.run1
+            elif self.steps <= self.animation_duration * 2:
+                self.image = self.run2
+            elif self.steps <= self.animation_duration * 3:
+                self.image = self.run3
+            elif self.steps <= self.animation_duration * 4:
+                self.image = self.run4
+            elif self.steps <= self.animation_duration * 5:
+                self.image = self.run5
+            elif self.steps <= self.animation_duration * 6:
+                self.image = self.run6
+            elif self.steps <= self.animation_duration * 7:
+                self.image = self.run7
+            elif self.steps >= self.animation_duration * 7 + 1:
+                self.steps = 0
+            self.steps += 1
+            if self.direction == 'left':
+                self.image = pygame.transform.flip(self.image, True, False)
+        else:
+            self.image = self.idle
+            if self.direction == 'left':
+                self.image = pygame.transform.flip(self.image, True, False)
+                            
+        if self.is_jumping == False and self.is_falling == False:
+            self.flight_duration = 0      
+            
         
     def load_images(self):
         sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (32, 32), (self.width, self.height))
         self.idle = sprite.cut(0, 0)
         self.idle_blink = sprite.cut(0, 1)
+        self.idle_low = sprite.cut(1, 0)
+        self.blink_low = sprite.cut(1, 1)
+        
+        self.run1 = sprite.cut(0, 3)
+        self.run2 = sprite.cut(1, 3)
+        self.run3 = sprite.cut(2, 3)
+        self.run4 = sprite.cut(3, 3)
+        self.run5 = sprite.cut(4, 3)
+        self.run6 = sprite.cut(5, 3)
+        self.run7 = sprite.cut(6, 3)
+        
+        self.jump1 = sprite.cut(1, 5)
+        self.jump2 = sprite.cut(2, 5)
+        self.jump3 = sprite.cut(3, 5)
+        
+        self.fall1 = sprite.cut(4, 5)
+        self.fall2 = sprite.cut(5, 5)
+        self.fall3 = sprite.cut(6, 5)
         
         
         self.image = self.idle

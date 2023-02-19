@@ -22,7 +22,7 @@ class Game():
         self.scroll = [0, 0]
         self.camera_smoothing = 15
         
-        self.player = Player(100, 100, 50, 50)
+        self.player = Player(100, 100, 60, 60)
         self.player.load_images()
         self.clock = pygame.time.Clock()
         
@@ -58,11 +58,11 @@ class Game():
             self.collision()
             
             # ------------------------------------------------ moving the camera
-            self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
-            self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
+            # self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
+            # self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
             
             # ------------------------------------------------ drawing
-            self.window.fill((0, 0, 0))
+            self.window.fill((250, 100, 100))
             self.player.update(self.window, self.dt)
             self.window.blit(self.player.image, ((self.player.rect.x - (self.player.width / 2))- self.scroll[0], (self.player.rect.y - (self.player.height / 2)) - self.scroll[1]))
             self.display.blit(self.window, (0, 0))
