@@ -24,6 +24,7 @@ class Player():
 
         
     def move(self, dt):
+        self.keys = pygame.key.get_pressed()
         """player movement and jumping and falling physics"""
         self.acceleration.x = 0
         if self.keys[pygame.K_a]:
@@ -54,8 +55,8 @@ class Player():
             self.is_jumping = False
         self.y = self.position.y
                 
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.x = self.x - self.width / 2
+        self.rect.y = self.y - self.height / 2
     
     def jump(self):
         """checks if player is able to jump and sets the velocity"""
@@ -84,7 +85,7 @@ class Player():
     def draw(self, window):
         window.blit(self.image, (self.rect.x, self.rect.y))
         
-    def update(self, window, dt):
+    def update(self, dt):
         self.keys = pygame.key.get_pressed()
         self.move(dt)
         self.animations()
@@ -139,7 +140,8 @@ class Player():
         if self.direction == 'left' and self.image != self.last_image:
             self.image = pygame.transform.flip(self.image, True, False) 
         self.last_image = self.image
-        self.image.set_colorkey((255, 255, 255))
+        self.image.set_colorkey((0, 0, 0))
+        self.mask = pygame.mask.from_surface(self.image)
             
         
     def load_images(self):
@@ -169,3 +171,5 @@ class Player():
         self.image = self.idle
         self.last_image = self.idle
         self.rect = self.image.get_rect()
+        self.image.set_colorkey((0, 0, 0))
+        self.mask = pygame.mask.from_surface(self.image)
