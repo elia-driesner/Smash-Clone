@@ -22,7 +22,7 @@ class Player():
         self.idle_time = 0
         self.last_image = 0
     
-    def horizontal_movement(self,dt):
+    def horizontal_movement(self, dt):
         self.acceleration.x = 0
         if self.keys[pygame.K_a]:
             self.direction = 'left'
@@ -34,9 +34,12 @@ class Player():
         self.velocity.x += self.acceleration.x * dt
         self.limit_velocity(7)
         self.position.x += self.velocity.x * dt + (self.acceleration.x * .5) * (dt * dt)
-        self.rect.x = self.position.x
+        self.x = self.position.x
+        self.rect.x = self.x
     
-    def vertical_movement(self,dt):
+    def vertical_movement(self, dt):
+        if self.keys[pygame.K_SPACE]:
+            self.jump()
         self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7: self.velocity.y = 7
         if self.on_ground: 
@@ -48,7 +51,8 @@ class Player():
         if self.y - self.position.y < 0:
             self.is_falling = True
             self.is_jumping = False
-        self.rect.bottom = self.position.y
+        self.y = self.position.y
+        self.rect.y = self.y
     
     def jump(self):
         """checks if player is able to jump and sets the velocity"""
@@ -80,6 +84,8 @@ class Player():
     def update(self, dt):
         self.keys = pygame.key.get_pressed()
         self.animations()
+        self.horizontal_movement(dt)
+        self.vertical_movement(dt)
     
     def animations(self):
         if self.is_jumping:
@@ -162,6 +168,8 @@ class Player():
         self.image = self.idle
         self.last_image = self.idle
         self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
         self.rect.height = self.height - (4 * 2)
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)

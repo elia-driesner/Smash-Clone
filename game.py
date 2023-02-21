@@ -55,7 +55,6 @@ class Game():
         
     def collision(self):
         self.hit_list = []
-        self.player.move(self.dt)
         self.collision_types = {'right': False, 'left': False, 'top': False, 'down': False}
     
         if self.player.rect.y >= 600:
@@ -82,7 +81,7 @@ class Game():
                     self.player.position.x = tile_rect.right
                     self.player.rect.x = self.player.position.x
             
-        print(len(self.hit_list))
+       # dprint(len(self.hit_list))
                 
                 
     def loop(self):
@@ -112,7 +111,9 @@ class Game():
             self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
             self.player.update(self.dt)          
             self.window.blit(self.player.image, ((self.player.x - (self.player.width / 2))- self.scroll[0], (self.player.y - (self.player.height / 2)) - self.scroll[1]))
-            # pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
+            self.player.rect.x = self.player.x
+            print(self.player.x - self.player.rect.x)
+            pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
             self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
     
             # ------------------------------------------------ update
