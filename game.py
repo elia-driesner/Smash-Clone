@@ -32,7 +32,8 @@ class Game():
         self.map = Map(32, (self.width, self.height))
         self.map.load_csv_data()
         self.map.load_images()
-        self.map_surface = self.map.draw_map(self.scroll)
+        self.map_output = self.map.draw_map(self.scroll)
+        self.map_surface = self.map_output[0]
         self.clock = pygame.time.Clock()
         
     def calculate_dt(self):

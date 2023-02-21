@@ -23,8 +23,7 @@ class Player():
         self.last_image = 0
 
         
-    def move(self, dt):
-        """player movement and jumping and falling physics"""
+    def horizontal_movement(self, dt):
         self.acceleration.x = 0
         if self.keys[pygame.K_a]:
             self.direction = 'left'
@@ -32,15 +31,16 @@ class Player():
         elif self.keys[pygame.K_d]:
             self.direction = 'right'
             self.acceleration.x += self.speed
-        if self.keys[pygame.K_SPACE]:
-            self.jump()
-            
         self.acceleration.x += self.velocity.x * self.friction
         self.velocity.x += self.acceleration.x * dt
         self.limit_velocity(7)
         self.position.x += self.velocity.x * dt + (self.acceleration.x * .5) * (dt * dt)
         self.x = self.position.x
-        
+        self.rect.x = self.x
+    
+    def vertical_movement(self, dt):
+        if self.keys[pygame.K_SPACE]:
+            self.jump()
         self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7: self.velocity.y = 7
         if self.on_ground: 
@@ -53,8 +53,6 @@ class Player():
             self.is_falling = True
             self.is_jumping = False
         self.y = self.position.y
-                
-        self.rect.x = self.x
         self.rect.y = self.y
     
     def jump(self):
@@ -86,7 +84,8 @@ class Player():
         
     def update(self, window, dt):
         self.keys = pygame.key.get_pressed()
-        self.move(dt)
+        self.horizontal_movement(dt)
+        self.vertical_movement(dt)
         self.animations()
     
     def animations(self):
@@ -139,7 +138,7 @@ class Player():
         if self.direction == 'left' and self.image != self.last_image:
             self.image = pygame.transform.flip(self.image, True, False) 
         self.last_image = self.image
-        self.image.set_colorkey((255, 255, 255))
+        self.image.set_colorkey((0, 0, 0))
             
         
     def load_images(self):
