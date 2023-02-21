@@ -46,21 +46,32 @@ class Player():
         self.x = self.position.x
         self.rect.x = self.x
         
-        if len(hit_list) > 0:
-            for tile in hit_list:
-                tile_rect = tile[0].get_rect()
-                tile_rect.x = tile[1][0]
-                tile_rect.y = tile[1][1]
-                if pygame.Rect.colliderect(self.rect, tile_rect):
-                    if self.velocity.x > 0:  # Hit tile from the top
-                        self.rect.right = tile_rect.left
-                        self.velocity.x = 0
-                        self.position.x = self.rect.x
-                        self.x = self.rect.x
-                    elif self.velocity.y < 0:  # Hit tile from the bottom
-                        self.velocity.y = 0
-                        self.position.y = tile_rect.bottom + self.rect.h
-                        self.rect.bottom = self.position.y
+        # if len(hit_list) > 0:
+        #     for tile in hit_list:
+        #         tile_rect = tile[0].get_rect()
+        #         tile_rect.x = tile[1][0]
+        #         tile_rect.y = tile[1][1]
+        #         if pygame.Rect.colliderect(self.rect, tile_rect):
+        #             if self.velocity.x > 0:  # Hit tile from the top
+        #                 self.rect.right = tile_rect.left
+        #                 self.velocity.x = 0
+        #                 self.position.x = self.rect.x
+        #                 self.x = self.rect.x
+        #             elif self.velocity.y < 0:  # Hit tile from the bottom
+        #                 self.velocity.y = 0
+        #                 self.position.y = tile_rect.bottom + self.rect.h
+        #                 self.rect.bottom = self.position.y
+        
+        for tile in hit_list:
+            tile_rect = tile[0].get_rect()
+            tile_rect.x = tile[1][0]
+            tile_rect.y = tile[1][1]
+            if self.velocity.x > 0:
+                self.rect.right = tile_rect.left
+                self.x = self.rect.x
+            elif self.velocity.x < 0:
+                self.rect.left = tile_rect.right
+                self.x = self.rect.x
                 
         
         self.velocity.y += self.acceleration.y * dt
@@ -81,21 +92,28 @@ class Player():
             tile_rect = tile[0].get_rect()
             tile_rect.x = tile[1][0]
             tile_rect.y = tile[1][1]
-            if pygame.Rect.colliderect(self.rect, tile_rect):
-                if self.velocity.y > 0:  # Hit tile from the top
-                    self.on_ground = True
-                    self.is_jumping = False
-                    self.velocity.y = 0
-                    self.rect.bottom = tile_rect.top
-                elif self.velocity.y < 0:  # Hit tile from the bottom
-                    self.velocity.y = 0
-                    self.position.y = tile_rect.bottom + self.rect.h
-                    self.rect.bottom = self.position.y
+            if self.velocity.y > 0:
+                self.rect.top = tile_rect.bottom
+                self.y = self.rect.y
+            elif self.velocity.y < 0:
+                self.rect.bottom = tile_rect.top
+                self.y = self.rect.y
+        
+        # for tile in hit_list:
+        #     tile_rect = tile[0].get_rect()
+        #     tile_rect.x = tile[1][0]
+        #     tile_rect.y = tile[1][1]
+        #     if pygame.Rect.colliderect(self.rect, tile_rect):
+        #         if self.velocity.y > 0:  # Hit tile from the top
+        #             self.on_ground = True
+        #             self.is_jumping = False
+        #             self.velocity.y = 0
+        #             self.rect.bottom = tile_rect.top
+        #         elif self.velocity.y < 0:  # Hit tile from the bottom
+        #             self.velocity.y = 0
+        #             self.position.y = tile_rect.bottom + self.rect.h
+        #             self.rect.bottom = self.position.y
             
-
-                
-        self.rect.x = self.x - self.width / 2
-        self.rect.y = self.y - self.height / 2
     
     def jump(self):
         """checks if player is able to jump and sets the velocity"""

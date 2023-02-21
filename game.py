@@ -57,17 +57,34 @@ class Game():
         
     def collision(self):
         self.hit_list = []
+        self.player.move(self.dt, self.hit_list)
         self.collision_types = {'right': False, 'left': False, 'top': False, 'down': False}
     
         if self.player.rect.y >= 420:
             self.player.on_ground = True
+        # for tile in self.tile_list:
+        #     tile_mask = pygame.mask.from_surface(tile[0])
+        #     collision = self.player.mask.overlap(tile_mask, (self.player.x - tile[1][0], self.player.y - tile[1][1]))
+        #     if collision:
+        #         self.hit_list.append(tile)
+        
+        # self.player.move(self.dt, self.hit_list)
         for tile in self.tile_list:
+            tile_rect = tile[0].get_rect()
             tile_mask = pygame.mask.from_surface(tile[0])
+            tile_rect.x = tile[1][0]
+            tile_rect.x = tile[1][1]
             collision = self.player.mask.overlap(tile_mask, (self.player.x - tile[1][0], self.player.y - tile[1][1]))
             if collision:
                 self.hit_list.append(tile)
-        
-        self.player.move(self.dt, self.hit_list)
+                if self.player.velocity.x > 0:
+                    self.player.rect.right = tile_rect.left
+                    self.player.x = self.player.rect.x
+                    print('right')
+                elif self.player.velocity.x < 0:
+                    self.player.rect.left = tile_rect.right
+                    self.player.x = self.player.rect.x
+                    print('left')
                 
                 
     def loop(self):
