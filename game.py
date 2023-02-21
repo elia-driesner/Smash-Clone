@@ -27,7 +27,7 @@ class Game():
         self.screen_shake = 0
         self.camera_smoothing = 15
         
-        self.player = Player(0, 0, 64, 64)
+        self.player = Player(0, 0, 32, 64)
         self.player.load_images()
         self.map = Map(32, (self.width, self.height))
         self.map.load_csv_data()
@@ -55,7 +55,7 @@ class Game():
         
     def collision(self):
         self.hit_list = []
-        self.player.move(self.dt, self.hit_list)
+        self.player.move(self.dt)
         self.collision_types = {'right': False, 'left': False, 'top': False, 'down': False}
     
         if self.player.rect.y >= 600:
@@ -75,6 +75,12 @@ class Game():
             collision = self.player.mask.overlap(tile_mask, (self.player.x - tile[1][0], self.player.y - tile[1][1]))
             if collision:
                 self.hit_list.append(tile)
+                if self.player.velocity.x > 0:  # Hit tile moving right
+                    self.player.position.x = tile_rect.left - self.player.rect.w
+                    self.player.rect.x = self.player.position.x
+                elif self.player.velocity.x < 0:  # Hit tile moving left
+                    self.player.position.x = tile_rect.right
+                    self.player.rect.x = self.player.position.x
             
         print(len(self.hit_list))
                 
@@ -106,6 +112,7 @@ class Game():
             self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
             self.player.update(self.dt)          
             self.window.blit(self.player.image, ((self.player.x - (self.player.width / 2))- self.scroll[0], (self.player.y - (self.player.height / 2)) - self.scroll[1]))
+            # pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
             self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
     
             # ------------------------------------------------ update
