@@ -30,7 +30,6 @@ class Map():
     
     def draw_map(self, scroll):
         self.tile_list = []
-        spawn = (0, 0)
         y = 0
         for row in self.map_list:
                 self.colums = 0
@@ -40,10 +39,8 @@ class Map():
                 for tile in row:
                     x += self.tile_size
                     self.colums += 1
-                    if tile != '-1' and tile != '39':
+                    if tile != '-1':
                             self.surface.blit(self.images[int(tile)], (x - scroll[0], y - scroll[1]))
                             self.tile_list.append([self.images[int(tile)], (x - scroll[0], y - scroll[1])])
-                    if tile == '39':
-                        spawn = (x, y)
         
-        return [self.surface, self.tile_list, spawn]
+        return [self.surface, self.tile_list]

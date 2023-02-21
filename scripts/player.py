@@ -21,12 +21,9 @@ class Player():
         self.direction = 'right'
         self.idle_time = 0
         self.last_image = 0
-        self.flip = True
 
         
-    def move(self, dt, hit_list):
-        old_x = self.x
-        old_y = self.y
+    def move(self, dt):
         self.keys = pygame.key.get_pressed()
         """player movement and jumping and falling physics"""
         self.acceleration.x = 0
@@ -44,35 +41,6 @@ class Player():
         self.limit_velocity(7)
         self.position.x += self.velocity.x * dt + (self.acceleration.x * .5) * (dt * dt)
         self.x = self.position.x
-        self.rect.x = self.x
-        
-        # if len(hit_list) > 0:
-        #     for tile in hit_list:
-        #         tile_rect = tile[0].get_rect()
-        #         tile_rect.x = tile[1][0]
-        #         tile_rect.y = tile[1][1]
-        #         if pygame.Rect.colliderect(self.rect, tile_rect):
-        #             if self.velocity.x > 0:  # Hit tile from the top
-        #                 self.rect.right = tile_rect.left
-        #                 self.velocity.x = 0
-        #                 self.position.x = self.rect.x
-        #                 self.x = self.rect.x
-        #             elif self.velocity.y < 0:  # Hit tile from the bottom
-        #                 self.velocity.y = 0
-        #                 self.position.y = tile_rect.bottom + self.rect.h
-        #                 self.rect.bottom = self.position.y
-        
-        for tile in hit_list:
-            tile_rect = tile[0].get_rect()
-            tile_rect.x = tile[1][0]
-            tile_rect.y = tile[1][1]
-            if self.velocity.x > 0:
-                self.rect.right = tile_rect.left
-                self.x = self.rect.x
-            elif self.velocity.x < 0:
-                self.rect.left = tile_rect.right
-                self.x = self.rect.x
-                
         
         self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7: self.velocity.y = 7
@@ -86,34 +54,9 @@ class Player():
             self.is_falling = True
             self.is_jumping = False
         self.y = self.position.y
-        self.rect.y = self.y
-        
-        for tile in hit_list:
-            tile_rect = tile[0].get_rect()
-            tile_rect.x = tile[1][0]
-            tile_rect.y = tile[1][1]
-            if self.velocity.y > 0:
-                self.rect.top = tile_rect.bottom
-                self.y = self.rect.y
-            elif self.velocity.y < 0:
-                self.rect.bottom = tile_rect.top
-                self.y = self.rect.y
-        
-        # for tile in hit_list:
-        #     tile_rect = tile[0].get_rect()
-        #     tile_rect.x = tile[1][0]
-        #     tile_rect.y = tile[1][1]
-        #     if pygame.Rect.colliderect(self.rect, tile_rect):
-        #         if self.velocity.y > 0:  # Hit tile from the top
-        #             self.on_ground = True
-        #             self.is_jumping = False
-        #             self.velocity.y = 0
-        #             self.rect.bottom = tile_rect.top
-        #         elif self.velocity.y < 0:  # Hit tile from the bottom
-        #             self.velocity.y = 0
-        #             self.position.y = tile_rect.bottom + self.rect.h
-        #             self.rect.bottom = self.position.y
-            
+                
+        self.rect.x = self.x - self.width / 2
+        self.rect.y = self.y - self.height / 2
     
     def jump(self):
         """checks if player is able to jump and sets the velocity"""
@@ -144,10 +87,8 @@ class Player():
         
     def update(self, dt):
         self.keys = pygame.key.get_pressed()
+        self.move(dt)
         self.animations()
-        
-        self.rect.x = self.x
-        self.rect.y = self.y
     
     def animations(self):
         if self.is_jumping:
@@ -197,15 +138,14 @@ class Player():
         if self.is_jumping == False and self.is_falling == False:
             self.flight_duration = 0     
         if self.direction == 'left' and self.image != self.last_image:
-            self.image = pygame.transform.flip(self.image, True, False)
-            self.image = pygame.transform.rotate(self.image, 0)
+            self.image = pygame.transform.flip(self.image, True, False) 
         self.last_image = self.image
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
             
         
     def load_images(self):
-        sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (16, 32), (self.width, self.height))
+        sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (32, 32), (self.width, self.height))
         self.idle = sprite.cut(0, 0)
         self.idle_blink = sprite.cut(0, 1)
         self.idle_low = sprite.cut(1, 0)
@@ -231,8 +171,5 @@ class Player():
         self.image = self.idle
         self.last_image = self.idle
         self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = self.x, self.y
-        self.rect.height = self.height - (4 * 2)
-        # self.rect.width = 16 * 2
         self.image.set_colorkey((0, 0, 0))
         self.mask = pygame.mask.from_surface(self.image)
