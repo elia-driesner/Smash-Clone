@@ -133,8 +133,6 @@ class Player():
         self.vertical_movement(dt)
         self.vertical_collision(tiles)
         self.animations()
-        self.horizontal_movement(dt)
-        self.vertical_movement(dt)
     
     def animations(self):
         """changes player image to current state of animation"""

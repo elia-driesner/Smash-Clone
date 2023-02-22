@@ -8,8 +8,8 @@ pygame.init()
 class Game():
     def __init__(self):
         # ------------------------------------------------ display setup
-        self.width, self.height = 960, 540
-        # self.width, self.height = 1920, 1080
+        # self.width, self.height = 960, 540
+        self.width, self.height = 1920, 1080
         if self.width == 1920:
             self.display = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         else:
@@ -57,7 +57,7 @@ class Game():
             self.window.fill((0, 0, 0))
             self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
             self.window.blit(self.player.image, ((self.player.rect.x)- self.scroll[0], (self.player.rect.y) - self.scroll[1]))
-            pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
+            # pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
             self.text = self.font.render(str(int(self.clock.get_fps())) + ' FPS', True, (255, 255, 255))
             self.window.blit(self.text, (10, 10))
             self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
