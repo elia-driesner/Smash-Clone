@@ -72,8 +72,8 @@ class Game():
             self.collision()
             
             # ------------------------------------------------ moving the camera
-            # self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
-            # self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
+            self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
+            self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
             
             # ------------------------------------------------ drawing
             if self.screen_shake > 0:

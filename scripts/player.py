@@ -70,24 +70,30 @@ class Player():
         self.rect.x = self.x
     
     def checkCollisionsy(self, tiles):
+        print(self.rect.y - self.y)
         self.on_ground = False
-        self.rect.bottom += 1
         for tile in tiles:
             tile_rect = tile[0].get_rect()
             tile_rect.x = tile[1][0]
             tile_rect.y = tile[1][1]
-            if self.velocity.y < 0:  # Hit tile from the top
-                self.on_ground = True
-                self.is_jumping = False
-                self.velocity.y = 0
-                self.position.y = tile_rect.top
-                self.y = self.position.y - self.height
-            elif self.velocity.y > 0:  # Hit tile from the bottom
-                self.velocity.y = 0
-                self.position.y = tile_rect.bottom + self.rect.h
-                self.y = self.position.y - self.height
-                
-        self.rect.y = self.y
+            if self.rect.colliderect(tile_rect):
+                if self.velocity.y >= 0:  # Hit tile from the top
+                    self.on_ground = True
+                    self.is_jumping = False
+                    self.is_falling = False
+                    self.velocity.y = 0
+                    if self.keys[pygame.K_SPACE]:
+                        self.position.y = self.y - 50
+                        self.rect.y = self.position.y
+                    else:
+                        self.position.y = tile_rect.top
+                        self.rect.bottom = self.position.y
+                elif self.velocity.y < 0:  # Hit tile from the bottom
+                    self.velocity.y = 0
+                    self.position.y = tile_rect.bottom
+                    self.rect.top = self.position.y
+        
+            
     
     def jump(self):
         """checks if player is able to jump and sets the velocity"""
@@ -97,6 +103,7 @@ class Player():
             self.is_jumping = True
             self.is_falling = False
             self.velocity.y -= 13
+            self.rect.y = self.y
             self.on_ground = False
         elif self.double_jump and self.on_ground == False and time.time() - self.last_jump > 0.3:
             self.double_jump = False
@@ -104,8 +111,8 @@ class Player():
             self.is_falling = False
             self.velocity.y -= 13
             self.on_ground = False
-        if self.velocity.y <= -13.5:
-            self.velocity.y = -13
+        if self.velocity.y <= -15.5:
+            self.velocity.y = -15
         
     
     def limit_velocity(self, max_vel):
@@ -121,6 +128,7 @@ class Player():
         self.horizontal_movement(dt)
         self.horizontal_collision(tiles)
         self.vertical_movement(dt)
+        self.checkCollisionsy(tiles)
         self.animations()
     
     def animations(self):
