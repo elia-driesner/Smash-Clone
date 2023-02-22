@@ -8,8 +8,8 @@ pygame.init()
 class Game():
     def __init__(self):
         # ------------------------------------------------ display setup
-        # self.width, self.height = 960, 540
-        self.width, self.height = 1920, 1080
+        self.width, self.height = 960, 540
+        # self.width, self.height = 1920, 1080
         if self.width == 1920:
             self.display = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         else:
@@ -27,12 +27,13 @@ class Game():
         self.screen_shake = 0
         self.camera_smoothing = 15
         
-        self.player = Player(100, 100, 64, 64)
+        self.player = Player(100, 100, 32, 64)
         self.player.load_images()
         self.map = Map(32, (self.width, self.height))
         self.map.load_csv_data()
         self.map.load_images()
         self.map_output = self.map.draw_map(self.scroll)
+        self.tile_list = self.map_output[1]
         self.map_surface = self.map_output[0]
         self.clock = pygame.time.Clock()
         
@@ -71,8 +72,8 @@ class Game():
             self.collision()
             
             # ------------------------------------------------ moving the camera
-            self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
-            self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
+            # self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
+            # self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
             
             # ------------------------------------------------ drawing
             if self.screen_shake > 0:
@@ -84,8 +85,9 @@ class Game():
                 
             self.window.fill((0, 0, 0))
             self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
-            self.player.update(self.window, self.dt)
-            self.window.blit(self.player.image, ((self.player.rect.x - (self.player.width / 2))- self.scroll[0], (self.player.rect.y - (self.player.height / 2)) - self.scroll[1]))
+            self.player.update(self.window, self.dt, self.tile_list)
+            self.window.blit(self.player.image, ((self.player.rect.x)- self.scroll[0], (self.player.rect.y) - self.scroll[1]))
+            # pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
             self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
     
             

@@ -55,6 +55,40 @@ class Player():
         self.y = self.position.y
         self.rect.y = self.y
     
+    def horizontal_collision(self, tiles):
+        for tile in tiles:
+            tile_rect = tile[0].get_rect()
+            tile_rect.x = tile[1][0]
+            tile_rect.y = tile[1][1]
+            if self.rect.colliderect(tile_rect):
+                if self.velocity.x > 0:  # Hit tile moving right
+                    self.position.x = tile_rect.left - self.rect.w
+                    self.x = self.position.x
+                elif self.velocity.x < 0:  # Hit tile moving left
+                    self.position.x = tile_rect.right
+                    self.x = self.position.x
+        self.rect.x = self.x
+    
+    def checkCollisionsy(self, tiles):
+        self.on_ground = False
+        self.rect.bottom += 1
+        for tile in tiles:
+            tile_rect = tile[0].get_rect()
+            tile_rect.x = tile[1][0]
+            tile_rect.y = tile[1][1]
+            if self.velocity.y < 0:  # Hit tile from the top
+                self.on_ground = True
+                self.is_jumping = False
+                self.velocity.y = 0
+                self.position.y = tile_rect.top
+                self.y = self.position.y - self.height
+            elif self.velocity.y > 0:  # Hit tile from the bottom
+                self.velocity.y = 0
+                self.position.y = tile_rect.bottom + self.rect.h
+                self.y = self.position.y - self.height
+                
+        self.rect.y = self.y
+    
     def jump(self):
         """checks if player is able to jump and sets the velocity"""
         if self.on_ground:
@@ -82,9 +116,10 @@ class Player():
     def draw(self, window):
         window.blit(self.image, (self.rect.x, self.rect.y))
         
-    def update(self, window, dt):
+    def update(self, window, dt, tiles):
         self.keys = pygame.key.get_pressed()
         self.horizontal_movement(dt)
+        self.horizontal_collision(tiles)
         self.vertical_movement(dt)
         self.animations()
     
@@ -142,7 +177,7 @@ class Player():
             
         
     def load_images(self):
-        sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (32, 32), (self.width, self.height))
+        sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (16, 32), (self.width, self.height))
         self.idle = sprite.cut(0, 0)
         self.idle_blink = sprite.cut(0, 1)
         self.idle_low = sprite.cut(1, 0)
@@ -168,3 +203,6 @@ class Player():
         self.image = self.idle
         self.last_image = self.idle
         self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = self.x, self.y
+        self.rect.height = self.height - (4 * 2)
+        self.mask = pygame.mask.from_surface(self.image)
