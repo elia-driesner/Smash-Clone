@@ -14,7 +14,7 @@ class Map():
         self.images = []
         
     def load_csv_data(self):
-        # ---------------------------------------------------------------- Load the map data from csv file
+        """loads the map from csv file"""
         self.rows = 0
         self.colums = 0
         self.map_list = []
@@ -24,11 +24,13 @@ class Map():
                 self.map_list.append(list(row))
             
     def load_images(self):
+        """loads the tile images and saves them in an array"""
         for i in range(0, self.sprite_rows):
             for j in range(0, self.sprite_col):
                 self.images.append(self.sprite.cut(j, i))
     
     def draw_map(self, scroll):
+        """draws the map once on a reusable surface"""
         self.tile_list = []
         spawn = (0, 0)
         y = 0

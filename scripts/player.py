@@ -6,8 +6,8 @@ class Player():
         self.x, self.y = x, y
         self.width, self.height = width, height
         
-        self.is_jumping, self.on_ground, self.is_falling = False, False, False
-        self.speed = 2
+        self.is_jumping, self.on_ground, self.is_falling = False, False, True
+        self.speed = 1.8
         self.double_jump = True
         self.last_jump = time.time()
         self.gravity, self.friction = .6, -.15
@@ -21,6 +21,7 @@ class Player():
         self.direction = 'right'
         self.idle_time = 0
         self.last_image = 0
+        self.shake = False
 
         
     def horizontal_movement(self, dt):
@@ -72,7 +73,7 @@ class Player():
                     self.x = self.position.x
         self.rect.x = self.x
     
-    def checkCollisionsy(self, tiles):
+    def vertical_collision(self, tiles):
         """prevents player from falling through ground"""
         self.on_ground = False
         for tile in tiles:
@@ -85,8 +86,9 @@ class Player():
                     self.is_jumping = False
                     self.is_falling = False
                     self.velocity.y = 0
+                    self.acceleration.y = self.gravity
                     if self.keys[pygame.K_SPACE]:
-                        self.position.y = self.y - 50
+                        self.position.y = self.y - 20
                         self.rect.y = self.position.y
                     else:
                         self.position.y = tile_rect.top
@@ -95,6 +97,7 @@ class Player():
                     self.velocity.y = 0
                     self.position.y = tile_rect.bottom
                     self.rect.top = self.position.y
+                    print('bottom')
         
             
     
@@ -128,11 +131,13 @@ class Player():
         self.horizontal_movement(dt)
         self.horizontal_collision(tiles)
         self.vertical_movement(dt)
-        self.checkCollisionsy(tiles)
+        self.vertical_collision(tiles)
         self.animations()
     
     def animations(self):
         """changes player image to current state of animation"""
+        if self.velocity.y > 6.5:
+            self.shake = True
         if self.is_jumping:
             if self.flight_duration <= 10:
                 self.image = self.jump1
