@@ -17,6 +17,8 @@ class Game():
         self.window = pygame.Surface((1920, 1080))
         pygame.display.set_caption('Smash')
         
+        self.font = pygame.font.Font('freesansbold.ttf', 25)
+        
         # ------------------------------------------------ setting up variables
         self.run = True
         self.MAX_FPS = 60
@@ -27,16 +29,24 @@ class Game():
         self.screen_shake = 0
         self.camera_smoothing = 15
         
+        self.clock = pygame.time.Clock()
+        
+        # ------------------------------------------------ setting up player and map
         self.player = Player(100, 100, 32, 64)
         self.player.load_images()
+        
         self.map = Map(32, (self.width, self.height))
         self.map.load_csv_data()
         self.map.load_images()
         self.map_output = self.map.draw_map(self.scroll)
         self.tile_list = self.map_output[1]
         self.map_surface = self.map_output[0]
-        self.clock = pygame.time.Clock()
         
+        self.player_spawn = self.map_output[2]
+        self.player.x, self.player.y = self.player_spawn[0], self.player_spawn[1]
+        self.player.rect.x, self.player.rect.y = self.player.x, self.player.y
+        self.player.position.x, self.player.position.y = self.player.x, self.player.y
+    
     def calculate_dt(self):
         """Calculates the deltatime between each frame"""
         self.dt = time.time() - self.last_time
@@ -54,10 +64,13 @@ class Game():
                 if event.key == pygame.K_f:
                     self.screen_shake = 20
         
-    def collision(self):
-        """collision detection"""
-        if self.player.rect.y >= 600:
-            self.player.on_ground = True
+        # shakes the screen if screen_shake > 0
+        if self.screen_shake > 0:
+            self.screen_shake -= 1
+            self.render_offset = [0, 0]
+            if self.screen_shake:
+                self.render_offset[0] = random.randint(0, 8) - 4
+                self.render_offset[1] = random.randint(0, 8) - 4
 
                 
     def loop(self):
@@ -67,31 +80,22 @@ class Game():
             self.clock.tick(self.MAX_FPS)
             self.calculate_dt()
             self.events()
-            
-            # ------------------------------------------------ collision events
-            self.collision()
+            self.player.update(self.window, self.dt, self.tile_list)
             
             # ------------------------------------------------ moving the camera
             self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
             self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
             
-            # ------------------------------------------------ drawing
-            if self.screen_shake > 0:
-                self.screen_shake -= 1
-            self.render_offset = [0, 0]
-            if self.screen_shake:
-                self.render_offset[0] = random.randint(0, 8) - 4
-                self.render_offset[1] = random.randint(0, 8) - 4
-                
+            # ------------------------------------------------ drawing          
             self.window.fill((0, 0, 0))
             self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
-            self.player.update(self.window, self.dt, self.tile_list)
             self.window.blit(self.player.image, ((self.player.rect.x)- self.scroll[0], (self.player.rect.y) - self.scroll[1]))
             # pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
+            self.text = self.font.render(str(int(self.clock.get_fps())) + ' FPS', True, (255, 255, 255))
+            self.window.blit(self.text, (10, 10))
             self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
     
             
-            # ------------------------------------------------ update
             self.last_time = time.time() 
             pygame.display.update()
                 

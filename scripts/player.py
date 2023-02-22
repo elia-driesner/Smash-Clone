@@ -11,7 +11,7 @@ class Player():
         self.double_jump = True
         self.last_jump = time.time()
         self.gravity, self.friction = .6, -.15
-        self.position, self.velocity = pygame.math.Vector2(0, 0), pygame.math.Vector2(0, 0)
+        self.position, self.velocity = pygame.math.Vector2(self.x, self.y), pygame.math.Vector2(0, 0)
         self.acceleration = pygame.math.Vector2(0, self.gravity)
         
         # animation
@@ -24,6 +24,7 @@ class Player():
 
         
     def horizontal_movement(self, dt):
+        """checks if player pressed a or d and moves the player in the given direction"""
         self.acceleration.x = 0
         if self.keys[pygame.K_a]:
             self.direction = 'left'
@@ -39,11 +40,12 @@ class Player():
         self.rect.x = self.x
     
     def vertical_movement(self, dt):
-        if self.keys[pygame.K_SPACE]:
+        """checks if player pressed space and moves the player up or down"""
+        if self.keys[pygame.K_SPACE]:               
             self.jump()
         self.velocity.y += self.acceleration.y * dt
-        if self.velocity.y > 7: self.velocity.y = 7
-        if self.on_ground: 
+        if self.velocity.y > 7: self.velocity.y = 7 
+        if self.on_ground:                          
             self.is_falling = False
             self.is_jumping = False
             self.velocity.y = 0
@@ -56,6 +58,7 @@ class Player():
         self.rect.y = self.y
     
     def horizontal_collision(self, tiles):
+        """checks for collision left and right and stopps player from moving in that direction"""
         for tile in tiles:
             tile_rect = tile[0].get_rect()
             tile_rect.x = tile[1][0]
@@ -70,7 +73,7 @@ class Player():
         self.rect.x = self.x
     
     def checkCollisionsy(self, tiles):
-        print(self.rect.y - self.y)
+        """prevents player from falling through ground"""
         self.on_ground = False
         for tile in tiles:
             tile_rect = tile[0].get_rect()
@@ -119,9 +122,6 @@ class Player():
         """limits the velocity of the player"""
         min(-max_vel, max(self.velocity.x, max_vel))
         if abs(self.velocity.x) < .01: self.velocity.x = 0
-
-    def draw(self, window):
-        window.blit(self.image, (self.rect.x, self.rect.y))
         
     def update(self, window, dt, tiles):
         self.keys = pygame.key.get_pressed()
@@ -132,6 +132,7 @@ class Player():
         self.animations()
     
     def animations(self):
+        """changes player image to current state of animation"""
         if self.is_jumping:
             if self.flight_duration <= 10:
                 self.image = self.jump1
@@ -185,6 +186,7 @@ class Player():
             
         
     def load_images(self):
+        """loads player images"""
         sprite = Sprite(pygame.image.load("assets/images/player/player_sprite.png"), (16, 32), (self.width, self.height))
         self.idle = sprite.cut(0, 0)
         self.idle_blink = sprite.cut(0, 1)
