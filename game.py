@@ -17,6 +17,8 @@ class Game():
         self.window = pygame.Surface((1920, 1080))
         pygame.display.set_caption('Smash')
         
+        self.font = pygame.font.Font('freesansbold.ttf', 25)
+        
         # ------------------------------------------------ setting up variables
         self.run = True
         self.MAX_FPS = 60
@@ -27,15 +29,43 @@ class Game():
         self.screen_shake = 0
         self.camera_smoothing = 15
         
-        self.player = Player(0, 0, 32, 64)
-        self.player.load_images()
-        self.map = Map(32, (self.width, self.height))
-        self.map.load_csv_data()
-        self.map.load_images()
-        self.map_surface = self.map.draw_map(self.scroll)[0]
-        self.tile_list = self.map.draw_map(self.scroll)[1]
         self.clock = pygame.time.Clock()
         
+        # ------------------------------------------------ setting up player and map
+        self.player = Player(100, 100, 16, 32)
+        self.map = Map(16, (self.width, self.height))
+        self.player_map_init()
+        
+    def loop(self):
+        """game loop"""
+        while self.run:
+            # ------------------------------------------------ pygame events
+            self.clock.tick(self.MAX_FPS)
+            self.calculate_dt()
+            self.events()
+            self.player.update(self.window, self.dt, self.tile_list)
+            
+            # ------------------------------------------------ moving the camera
+            self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
+            self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
+            
+            if self.player.shake and self.player.on_ground: 
+                self.screen_shake = 2
+                self.player.shake = False
+            
+            # ------------------------------------------------ drawing          
+            self.window.fill((0, 0, 0))
+            self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
+            self.window.blit(self.player.image, ((self.player.rect.x)- self.scroll[0], (self.player.rect.y) - self.scroll[1]))
+            pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
+            self.text = self.font.render(str(int(self.clock.get_fps())) + ' FPS', True, (255, 255, 255))
+            self.window.blit(self.text, (10, 10))
+            self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
+    
+            
+            self.last_time = time.time() 
+            pygame.display.update()
+    
     def calculate_dt(self):
         """Calculates the deltatime between each frame"""
         self.dt = time.time() - self.last_time
@@ -53,73 +83,27 @@ class Game():
                 if event.key == pygame.K_f:
                     self.screen_shake = 20
         
-    def collision(self):
-        self.hit_list = []
-        self.collision_types = {'right': False, 'left': False, 'top': False, 'down': False}
-    
-        if self.player.rect.y >= 600:
-            self.player.on_ground = True
-        # for tile in self.tile_list:
-        #     tile_mask = pygame.mask.from_surface(tile[0])
-        #     collision = self.player.mask.overlap(tile_mask, (self.player.x - tile[1][0], self.player.y - tile[1][1]))
-        #     if collision:
-        #         self.hit_list.append(tile)
-        
-        # self.player.move(self.dt, self.hit_list)
-        for tile in self.tile_list:
-            tile_rect = tile[0].get_rect()
-            tile_mask = pygame.mask.from_surface(tile[0])
-            tile_rect.x = tile[1][0]
-            tile_rect.x = tile[1][1]
-            collision = self.player.mask.overlap(tile_mask, (self.player.x - tile[1][0], self.player.y - tile[1][1]))
-            if collision:
-                self.hit_list.append(tile)
-                if self.player.velocity.x > 0:  # Hit tile moving right
-                    self.player.position.x = tile_rect.left - self.player.rect.w
-                    self.player.rect.x = self.player.position.x
-                elif self.player.velocity.x < 0:  # Hit tile moving left
-                    self.player.position.x = tile_rect.right
-                    self.player.rect.x = self.player.position.x
-            
-       # dprint(len(self.hit_list))
-                
-                
-    def loop(self):
-        """game loop"""
-        while self.run:
-            # ------------------------------------------------ pygame events
-            self.clock.tick(self.MAX_FPS)
-            self.calculate_dt()
-            self.events()
-            
-            # ------------------------------------------------ collision events
-            self.collision() 
-            
-            # ------------------------------------------------ moving the camera
-            # self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
-            # self.scroll[1] += int((self.player.rect.y - self.scroll[1] - (self.height / 2)) / self.camara_smoothing)
-            
-            # ------------------------------------------------ drawing
-            if self.screen_shake > 0:
-                self.screen_shake -= 1
+        # shakes the screen if screen_shake > 0
+        if self.screen_shake > 0:
+            self.screen_shake -= 1
             self.render_offset = [0, 0]
             if self.screen_shake:
                 self.render_offset[0] = random.randint(0, 8) - 4
                 self.render_offset[1] = random.randint(0, 8) - 4
-            
-            self.window.fill((0, 0, 0))
-            self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
-            self.player.update(self.dt)          
-            self.window.blit(self.player.image, ((self.player.x - (self.player.width / 2))- self.scroll[0], (self.player.y - (self.player.height / 2)) - self.scroll[1]))
-            self.player.rect.x = self.player.x
-            print(self.player.x - self.player.rect.x)
-            pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
-            self.display.blit(pygame.transform.scale(self.window, (self.width, self.height)), self.render_offset)
     
-            # ------------------------------------------------ update
-            self.last_time = time.time() 
-            pygame.display.update()
-                
+    def player_map_init(self):
+        self.map.load_csv_data()
+        self.map.load_images()
+        self.map_output = self.map.draw_map(self.scroll)
+        self.tile_list = self.map_output[1]
+        self.map_surface = self.map_output[0]
+        
+        self.player.load_images()
+        self.player_spawn = self.map_output[2]
+        self.player.x, self.player.y = self.player_spawn[0], self.player_spawn[1]
+        self.player.rect.x, self.player.rect.y = self.player.x, self.player.y
+        self.player.position.x, self.player.position.y = self.player.x, self.player.y
 
+                
 game = Game()
 game.loop()
