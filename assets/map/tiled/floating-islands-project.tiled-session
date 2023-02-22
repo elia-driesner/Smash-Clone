@@ -7,6 +7,14 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "floating-islands.tmx": {
+            "scale": 0.4719,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 801.0171646535283,
+                "y": 802.0767111676204
+            }
+        },
         "points.tsx": {
             "scaleInDock": 1,
             "scaleInEditor": 1
@@ -23,6 +31,7 @@
     ],
     "project": "floating-islands-project.tiled-project",
     "recentFiles": [
+        "floating-islands.tmx",
         "points.tsx"
     ],
     "tileset.lastUsedFilter": "All Files (*)",
