@@ -8,8 +8,8 @@ pygame.init()
 class Game():
     def __init__(self):
         # ------------------------------------------------ display setup
-        # self.width, self.height = 960, 540
-        self.width, self.height = 1920, 1080
+        self.width, self.height = 960, 540
+        # self.width, self.height = 1920, 1080
         if self.width == 1920:
             self.display = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         else:
