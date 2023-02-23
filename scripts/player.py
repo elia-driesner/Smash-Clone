@@ -86,6 +86,7 @@ class Player():
                     self.is_jumping = False
                     self.is_falling = False
                     self.velocity.y = 0
+                    self.double_jump = True
                     self.acceleration.y = self.gravity
                     if self.keys[pygame.K_SPACE]:
                         self.position.y = self.y - 20
@@ -98,6 +99,12 @@ class Player():
                     self.position.y = tile_rect.bottom
                     self.rect.top = self.position.y
                     print('bottom')
+        
+        if self.y >= 1000:
+            self.x = self.spawn[0]
+            self.y = self.spawn[1]
+            self.position.x = self.x
+            self.position.y = self.y
         
             
     
@@ -115,7 +122,7 @@ class Player():
             self.double_jump = False
             self.is_jumping = True
             self.is_falling = False
-            self.velocity.y -= 13
+            self.velocity.y = -13
             self.on_ground = False
         if self.velocity.y <= -15.5:
             self.velocity.y = -15

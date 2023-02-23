@@ -103,6 +103,7 @@ class Game():
         self.player.x, self.player.y = self.player_spawn[0], self.player_spawn[1]
         self.player.rect.x, self.player.rect.y = self.player.x, self.player.y
         self.player.position.x, self.player.position.y = self.player.x, self.player.y
+        self.player.spawn = self.player_spawn
 
                 
 game = Game()
