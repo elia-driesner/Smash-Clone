@@ -60,7 +60,7 @@ class Game():
             self.calculate_dt()
             self.events()
             self.player.update(self.window, self.dt, self.tile_list)
-            self.enemy_pos = self.read_pos(self.n.send(self.make_pos ((self.player.x, self.player .y))))
+            self.enemy_pos = self.read_pos(self.n.send(self.make_pos ((self.player.x, self.player.y))))
             self.enemy,x, self.enemy.y = self.enemy_pos[0], self.enemy_pos[1]
             self.enemy.rect.x, self.enemy.rect.y = self.enemy.x, self.enemy.y
             
@@ -93,7 +93,8 @@ class Game():
         self.camara_smoothing = 8 - int(self.dt)
         
     def read_pos(self, str):
-        str.split(",")
+        str = str.split(",")
+        print(str)
         return int(str[0]), int(str[1])
 
     def make_pos(self, tuple):

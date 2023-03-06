@@ -4,7 +4,7 @@ import sys
 
 class Server():
     def __init__(self):
-        self.server = '192.168.0.139'
+        self.server = socket.gethostbyname(socket.gethostname())
         print(self.server)
         self.port = 5555  
         
@@ -14,10 +14,10 @@ class Server():
         self.data_size = 1
         self.current_players = 0
         
-        self.pos[(0, 0), (0, 0)]
+        self.pos = [(0, 0), (0, 0)]
     
     def read_pos(self, str):
-        str.split(",")
+        str = str.split(",")
         return int(str[0]), int(str[1])
 
     def make_pos(self, tuple):
@@ -41,7 +41,6 @@ class Server():
     def threaded_client(self, conn, player):
         reply = ''
         _run = True
-        conn.send(str.encode('connected'))
         
         while _run:
             try:
