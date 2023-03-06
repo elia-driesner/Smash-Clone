@@ -1,4 +1,5 @@
-import pygame, sys, random, time
+import pygame, sys, random, time, asyncio
+from _thread import * 
 
 from scripts.player import Player
 from scripts.map import Map
@@ -9,8 +10,8 @@ pygame.init()
 class Game():
     def __init__(self):
         # ------------------------------------------------ display setup
-        # self.width, self.height = 960, 540
-        self.width, self.height = 1920, 1080
+        self.width, self.height = 960, 540
+        # self.width, self.height = 1920, 1080
         if self.width == 1920:
             self.display = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         else:
@@ -30,15 +31,26 @@ class Game():
         self.screen_shake = 0
         self.camera_smoothing = 15
         
-        self.client = Network()
-        self.client.connect()
+        # start_new_thread(self.connect_client, ())
+        self.n = Network()
         
         self.clock = pygame.time.Clock()
         
         # ------------------------------------------------ setting up player and map
         self.player = Player(100, 100, 16, 32)
+        self.enemy = Player(100, 100, 16, 32)
+        self.enemy_pos = (self.enemy.x, self.enemy.y)
         self.map = Map(16, (self.width, self.height))
         self.player_map_init()
+    
+    # def connect_client(self):
+    #     self.client = Network()
+    #     print('connecting...')
+    #     while self.client.connected == False:
+    #         time.sleep(100)
+    #         self.cleint.connect()
+    #         print('connecting...')
+        
         
     def loop(self):
         """game loop"""
@@ -48,6 +60,9 @@ class Game():
             self.calculate_dt()
             self.events()
             self.player.update(self.window, self.dt, self.tile_list)
+            self.enemy_pos = self.read_pos(self.n.send(self.make_pos ((self.player.x, self.player .y))))
+            self.enemy,x, self.enemy.y = self.enemy_pos[0], self.enemy_pos[1]
+            self.enemy.rect.x, self.enemy.rect.y = self.enemy.x, self.enemy.y
             
             # ------------------------------------------------ moving the camera
             self.scroll[0] += int((self.player.rect.x  - self.scroll[0] - (self.width / 2)) / self.camara_smoothing)
@@ -61,6 +76,7 @@ class Game():
             self.window.fill((0, 0, 0))
             self.window.blit(self.map_surface, (0 - self.scroll[0], 0 - self.scroll[1]))
             self.window.blit(self.player.image, ((self.player.rect.x)- self.scroll[0], (self.player.rect.y) - self.scroll[1]))
+            self.window.blit(self.enemy.image, ((self.enemy.rect.x)- self.scroll[0], (self.enemy.rect.y) - self.scroll[1]))
             # pygame.draw.rect(self.window, (255, 255, 255), self.player.rect)
             self.text = self.font.render(str(int(self.clock.get_fps())) + ' FPS', True, (255, 255, 255))
             self.window.blit(self.text, (10, 10))
@@ -75,6 +91,13 @@ class Game():
         self.dt = time.time() - self.last_time
         self.dt *= 60
         self.camara_smoothing = 8 - int(self.dt)
+        
+    def read_pos(self, str):
+        str.split(",")
+        return int(str[0]), int(str[1])
+
+    def make_pos(self, tuple):
+        return str(tuple[0]) + "," + str(tuple[1])
         
     def events(self):
         """"checks if window was quit using the x button"""
@@ -101,6 +124,13 @@ class Game():
         self.map_output = self.map.draw_map(self.scroll)
         self.tile_list = self.map_output[1]
         self.map_surface = self.map_output[0]
+        
+        self.enemy.load_images()
+        self.enemy_spawn = self.map_output[3]
+        self.enemy.x, self.enemy.y = self.enemy_spawn[0], self.enemy_spawn[1]
+        self.enemy.rect.x, self.enemy.rect.y = self.enemy.x, self.enemy.y
+        self.enemy.position.x, self.enemy.position.y = self.enemy.x, self.enemy.y
+        self.enemy.spawn = self.enemy_spawn
         
         self.player.load_images()
         self.player_spawn = self.map_output[2]

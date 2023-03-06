@@ -12,6 +12,16 @@ class Server():
         self.status = ''
         self.running = True
         self.data_size = 1
+        self.current_players = 0
+        
+        self.pos[(0, 0), (0, 0)]
+    
+    def read_pos(self, str):
+        str.split(",")
+        return int(str[0]), int(str[1])
+
+    def make_pos(self, tuple):
+        return str(tuple[0]) + "," + str(tuple[1])
         
     def run(self):
         try:
@@ -26,27 +36,32 @@ class Server():
         while self.running:
             self.conn, self.addr = self.s.accept()
             
-            start_new_thread(self.threaded_client, (self.conn,))
+            start_new_thread(self.threaded_client, (self.conn, self.current_players))
     
-    def threaded_client(self, conn):
+    def threaded_client(self, conn, player):
         reply = ''
         _run = True
         conn.send(str.encode('connected'))
         
         while _run:
             try:
-                data = conn.recv(2048*self.data_size)
-                reply = data.decode('utf-8')
+                data = self.read_pos(conn.recv(2048*self.data_size).decode())
+                self.pos[player] = data
                 
                 if not data:
                     self.status = 'Client disconnected'
+                    self.current_players -= 1
                     _run = False
                     break
                 else:
-                    print('recieved: ', reply)
+                    if player == 0:
+                        reply = self.pos[1]
+                    elif player == 1:
+                        reply = self.pos[0]
+                    print('recieved: ', data)
                     print('sending: ', reply)
                 
-                conn.sendall(str.encode(reply))
+                conn.sendall(str.encode(self.make_pos(reply)))
             except:
                 break
         print('Client disconnected')

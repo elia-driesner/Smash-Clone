@@ -32,7 +32,8 @@ class Map():
     def draw_map(self, scroll):
         """draws the map once on a reusable surface"""
         self.tile_list = []
-        spawn = (0, 0)
+        player_spawn = (0, 0)
+        enemy_spawn = (0, 0)
         y = 0
         for row in self.map_list:
                 self.colums = 0
@@ -46,6 +47,8 @@ class Map():
                             self.surface.blit(self.images[int(tile)], (x - scroll[0], y - scroll[1]))
                             self.tile_list.append([self.images[int(tile)], (x - scroll[0], y - scroll[1])])
                     if tile == '39':
-                        spawn = (x, y)
+                        player_spawn = (x, y)
+                    if tile == '40':
+                        enemy_spawn = (x, y)
         
-        return [self.surface, self.tile_list, spawn]
+        return [self.surface, self.tile_list, player_spawn, enemy_spawn]
